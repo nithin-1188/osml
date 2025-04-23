@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
+using namespace std;
+
+struct Process {
+    int pid, arrival, burst, remaining, priority;
+    int completion, turnaround, waiting, response;
+    bool started;
+};
+
+int main() {
+    int n;
+    cout << "Enter number of processes: ";
+    cin >> n;
+
+    vector<Process> p(n);
+    for (int i = 0; i < n; i++) {
+        p[i].pid = i + 1;
+        cout << "Enter arrival time, burst time, and priority for process " << p[i].pid << ": ";
+        cin >> p[i].arrival >> p[i].burst >> p[i].priority;
+        p[i].remaining = p[i].burst;
+        p[i].started = false;
+    }
+
+    int time = 0, completed = 0;
+    double totalTAT = 0, totalWT = 0, totalRT = 0;
+
+    while (completed != n) {
+        int idx = -1;
+        int highest_priority = 1e9;
+
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival <= time && p[i].remaining > 0) {
+                if (p[i].priority < highest_priority) {
+                    highest_priority = p[i].priority;
+                    idx = i;
+                } else if (p[i].priority == highest_priority && p[i].arrival < p[idx].arrival) {
+                    idx = i;
+                }
+            }
+        }
+
+        if (idx != -1) {
+            if (!p[idx].started) {
+                p[idx].response = time - p[idx].arrival;
+                p[idx].started = true;
+            }
+
+            p[idx].remaining--;
+            time++;
+
+            if (p[idx].remaining == 0) {
+                p[idx].completion = time;
+                p[idx].turnaround = p[idx].completion - p[idx].arrival;
+                p[idx].waiting = p[idx].turnaround - p[idx].burst;
+
+                totalTAT += p[idx].turnaround;
+                totalWT += p[idx].waiting;
+                totalRT += p[idx].response;
+
+                completed++;
+            }
+        } else {
+            time++;
+        }
+    }
+
+    cout << "\nPID\tAT\tBT\tPri\tCT\tTAT\tWT\tRT\n";
+    for (auto& proc : p) {
+        cout << proc.pid << "\t" << proc.arrival << "\t" << proc.burst << "\t" << proc.priority << "\t"
+             << proc.completion << "\t" << proc.turnaround << "\t" << proc.waiting << "\t" << proc.response << "\n";
+    }
+
+    cout << fixed << setprecision(2);
+    cout << "\nAverage Turnaround Time: " << totalTAT / n << "\n";
+    cout << "Average Waiting Time   : " << totalWT / n << "\n";
+    cout << "Average Response Time  : " << totalRT / n << "\n";
+
+    return 0;
+}
