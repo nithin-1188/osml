@@ -1,0 +1,37 @@
+import numpy as np
+from sklearn.cluster import KMeans
+from scipy.stats import mode
+
+# Data points
+data = np.array([
+    [1.373, 1.586],
+    [0.980, 1.286],
+    [0.832, 1.407],
+    [0.460, 1.566],
+    [1.486, 0.259],
+    [1.266, 1.106],
+    [1.540, 0.493],
+    [0.459, 1.299],
+    [0.773, 0.863]
+])
+
+# Known class labels for supervised learning style validation
+classes = np.array([0, 1, 1, 0, 1, 0, 1, 1, 1])
+
+# Perform KMeans clustering
+kmeans = KMeans(n_clusters=3, random_state=0)
+clusters = kmeans.fit_predict(data)
+
+# Assign majority class label to each cluster
+cluster_classes = np.zeros(kmeans.n_clusters, dtype=int)
+for i in range(kmeans.n_clusters):
+    cluster_indices = np.where(clusters == i)[0]
+    cluster_class = mode(classes[cluster_indices])[0][0]
+    cluster_classes[i] = cluster_class
+
+# New point to classify
+new_point = np.array([[0.906, 0.606]])
+cluster_label = kmeans.predict(new_point)
+predicted_class = cluster_classes[cluster_label[0]]
+
+print(f"The predicted class for VAR1 = 0.906 and VAR2 = 0.606 is {predicted_class}")
