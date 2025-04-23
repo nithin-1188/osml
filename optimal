@@ -1,0 +1,81 @@
+#include <stdio.h>
+
+int search(int key, int fr[], int f) {
+    for (int i = 0; i < f; i++) {
+        if (fr[i] == key)
+            return 1;
+    }
+    return 0;
+}
+
+int predict(int rs[], int fr[], int p, int index, int f) {
+    int farthest = index, pos = -1;
+
+    for (int i = 0; i < f; i++) {
+        int j;
+        for (j = index; j < p; j++) {
+            if (fr[i] == rs[j]) {
+                if (j > farthest) {
+                    farthest = j;
+                    pos = i;
+                }
+                break;
+            }
+        }
+
+        if (j == p) // If page not found in future
+            return i;
+    }
+
+    return (pos == -1) ? 0 : pos;
+}
+
+int main() {
+    int p, f;
+    printf("Enter number of pages and frames: ");
+    scanf("%d %d", &p, &f);
+
+    int rs[p], fr[f], hit = 0, miss = 0;
+    printf("Enter page reference string:\n");
+    for (int i = 0; i < p; i++)
+        scanf("%d", &rs[i]);
+
+    for (int i = 0; i < f; i++)
+        fr[i] = -1;
+
+    printf("\nPage\tFrames\t\t\tResult\n");
+
+    for (int i = 0; i < p; i++) {
+        printf("%d\t", rs[i]);
+
+        if (search(rs[i], fr, f)) {
+            hit++;
+            for (int j = 0; j < f; j++)
+                fr[j] != -1 ? printf("%d ", fr[j]) : printf("- ");
+            printf("\t\tHit\n");
+            continue;
+        }
+
+        miss++;
+        int j;
+        for (j = 0; j < f; j++) {
+            if (fr[j] == -1) {
+                fr[j] = rs[i];
+                break;
+            }
+        }
+
+        if (j == f) {
+            int pos = predict(rs, fr, p, i + 1, f);
+            fr[pos] = rs[i];
+        }
+
+        for (j = 0; j < f; j++)
+            fr[j] != -1 ? printf("%d ", fr[j]) : printf("- ");
+        printf("\t\tMiss\n");
+    }
+
+    printf("\nHits: %d, Misses: %d\n", hit, miss);
+    printf("Hit Ratio: %.2f%%\n", (hit * 100.0) / p);
+    return 0;
+}
