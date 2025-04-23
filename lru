@@ -1,0 +1,56 @@
+#include <stdio.h>
+#define MAX_F 10
+
+int main() {
+    int p, f, fr[MAX_F], t[MAX_F], i, j, k, h = 0, m = 0, l, found;
+
+    printf("Enter frames and pages: ");
+    scanf("%d %d", &f, &p);
+
+    int rs[p];
+    printf("Enter page string:\n");
+    for(i = 0; i < p; i++)
+        scanf("%d", &rs[i]);
+
+    for(i = 0; i < f; i++)
+        fr[i] = -1;
+
+    for(i = 0; i < p; i++) {
+        found = 0;
+
+        for(j = 0; j < f; j++) {
+            if(fr[j] == rs[i]) {
+                found = 1;
+                h++;
+                t[j] = i;
+                break;
+            }
+        }
+
+        if(!found) {
+            m++;
+            l = 0;
+            for(j = 1; j < f; j++) {
+                if(t[j] < t[l])
+                    l = j;
+            }
+            fr[l] = rs[i];
+            t[l] = i;
+        }
+
+        // Printing current frame content
+        printf("%d\t", rs[i]);
+        for(k = 0; k < f; k++) {
+            if(fr[k] != -1)
+                printf("%d ", fr[k]);
+            else
+                printf("- ");
+        }
+        printf("\t\t%s\n", found ? "Hit" : "Miss");
+    }
+
+    printf("\nHits = %d (%.2f%%)\nMisses = %d (%.2f%%)\n",
+           h, (h * 100.0) / p, m, (m * 100.0) / p);
+
+    return 0;
+}
